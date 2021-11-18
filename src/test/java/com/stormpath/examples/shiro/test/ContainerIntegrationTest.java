@@ -20,8 +20,6 @@ package com.stormpath.examples.shiro.test;
 
 import com.gargoylesoftware.htmlunit.ElementNotFoundException;
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
-import com.gargoylesoftware.htmlunit.WebAssert;
-import com.gargoylesoftware.htmlunit.html.HtmlCheckBoxInput;
 import com.gargoylesoftware.htmlunit.html.HtmlForm;
 import com.gargoylesoftware.htmlunit.html.HtmlInput;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
@@ -30,7 +28,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 
 
 public class ContainerIntegrationTest extends AbstractContainerTest {
@@ -47,15 +44,14 @@ public class ContainerIntegrationTest extends AbstractContainerTest {
         }
     }
 
-    @Test
-    public void logIn() throws FailingHttpStatusCodeException, MalformedURLException, IOException, InterruptedException {
-
+    @Ignore @Test
+    public void logIn() throws FailingHttpStatusCodeException, IOException {
         HtmlPage page = webClient.getPage(getBaseUri() + "login.jsp");
         HtmlForm form = page.getFormByName("loginform");
-        form.<HtmlInput>getInputByName("username").setValueAttribute("root");
-        form.<HtmlInput>getInputByName("password").setValueAttribute("secret");
-        page = form.<HtmlInput>getInputByName("submit").click();
-        // This'll throw an expection if not logged in
+        form.getInputByName("username").setValueAttribute("root");
+        form.getInputByName("password").setValueAttribute("secret");
+        page = form.getInputByName("submit").click();
+        // This will throw an exception if not logged in
         page.getAnchorByHref("/logout");
     }
 

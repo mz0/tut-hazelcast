@@ -31,31 +31,25 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import java.net.BindException;
 
 public abstract class AbstractContainerTest {
-    public static final int MAX_PORT = 9200;
+    protected static int port = 0;
 
     protected static PauseableServer server;
-
-    private static int port = 9180;
 
     protected final WebClient webClient = new WebClient();
 
     @BeforeClass
     public static void startContainer() throws Exception {
-        while (server == null && port < MAX_PORT) {
             try {
-                server = createAndStartServer(port);
+                server = createAndStartServer();
             } catch (BindException e) {
-                System.err.printf("Unable to listen on port %d.  Trying next port.", port);
-                port++;
             }
-        }
         assertTrue(server.isStarted());
     }
 
-    private static PauseableServer createAndStartServer(final int port) throws Exception {
+    private static PauseableServer createAndStartServer() throws Exception {
         PauseableServer server = new PauseableServer();
-        Connector connector = new ServerConnector(server);
-        // connector.setPort(port);
+        ServerConnector connector = new ServerConnector(server);
+        AbstractContainerTest.port = connector.getPort();
         server.setConnectors(new Connector[]{connector});
         server.setHandler(new WebAppContext("src/main/webapp", "/"));
         server.start();
