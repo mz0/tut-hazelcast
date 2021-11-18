@@ -20,12 +20,13 @@ package com.stormpath.examples.shiro.test;
 
 import com.gargoylesoftware.htmlunit.WebClient;
 import static org.junit.Assert.assertTrue;
+
+import org.eclipse.jetty.server.ServerConnector;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.mortbay.jetty.Connector;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.nio.SelectChannelConnector;
-import org.mortbay.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.webapp.WebAppContext;
 
 import java.net.BindException;
 
@@ -53,8 +54,8 @@ public abstract class AbstractContainerTest {
 
     private static PauseableServer createAndStartServer(final int port) throws Exception {
         PauseableServer server = new PauseableServer();
-        Connector connector = new SelectChannelConnector();
-        connector.setPort(port);
+        Connector connector = new ServerConnector(server);
+        // connector.setPort(port);
         server.setConnectors(new Connector[]{connector});
         server.setHandler(new WebAppContext("src/main/webapp", "/"));
         server.start();
@@ -65,10 +66,7 @@ public abstract class AbstractContainerTest {
         return "http://localhost:" + port + "/";
     }
 
-    @Before
-    public void beforeTest() {
-        webClient.setThrowExceptionOnFailingStatusCode(true);
-    }
+//  @Before public void beforeTest() {webClient.setThrowExceptionOnFailingStatusCode(true);}
 
     public void pauseServer(boolean paused) {
         if (server != null) server.pause(paused);
