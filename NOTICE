@@ -1,0 +1,17 @@
+The bulk of this work was committed by Brian Demers (https://github.com/bdemers)
+on 2016-07-26 to https://github.com/stormpath/stormpath-shiro-hazelcast-tutorial
+and licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements as (was[1]) stated in pom.xml and many others.
+
+This code illustrated the 2016-07-27 publication
+https://stormpath.com/blog/hazelcast-support-apache-shiro
+by the same author.
+
+2021-11-18 mz@exactpro.com found this "archived" repo, and refreshed this code,
+without claiming copyright for his work.
+
+[1] I believe this NOTICE file substitutes multiple instances of that "legal" junk,
+esp. keeping in mend that those "boilerplate" banners referred to this file, while
+the original author had not bothered himself with composing one.
+ For this very reason I've taken the liberty to drop such nonsense statements where
+I felt them excessive.
