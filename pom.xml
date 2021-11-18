@@ -14,7 +14,7 @@
 	<maven.compiler.target>1.8</maven.compiler.target>
 	<jetty.version>9.1.6.v20160112</jetty.version>
 	<slf4j.version>1.7.21</slf4j.version>
-        <shiro.version>1.3.0</shiro.version>
+        <shiro.version>1.3.2</shiro.version>
     </properties>
 
     <build>
@@ -118,7 +118,7 @@
         <dependency>
             <groupId>org.apache.shiro</groupId>
             <artifactId>shiro-hazelcast</artifactId>
-            <version>1.3.0</version>
+            <version>${shiro.version}</version>
         </dependency>
     </dependencies>
 
