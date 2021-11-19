@@ -13,7 +13,10 @@ mvn jetty:run -Djetty.port=9091
 mvn jetty:run -Djetty.port=9092
 ```
 
-We are at step-2 in this repo, running the two servers above
+## step-2
+added Hazelcast (with default built-in configuration)
+
+Running the two servers above
 we can see in the first terminal window
 ```
 com.hazelcast.cluster.ClusterManager
@@ -30,7 +33,21 @@ Members [2] {
 	Member [10.0.0.10]:5702 this
 }
 ```
-the first window is also updated, listing `:5702` Member
+the first window is also updated, listing the new `:5702` Member
 
 When the second Member goes down (on ^C), the 1st log shows
-initial status `Members [1] {..}`
+return to the initial status `Members [1] {..}`
+
+## step-3
+adds `hazelcast.xml` configuration file to show Hazelcast cluster re-configuration
+in step-4: renaming `<group>` "dev" to something else, and changing port allocation.
+
+A kind of mystery is a reference to `hazelcast-config-2.5.xsd` here,
+since shiro-hazelcast:1.3.x pulls hazelcast:2.4 (2.4.1)
+
+## Errata
+Hazelcast 2.4 configuration code produces this misleading error message:
+```
+[Fatal Error] :6:3: The element type "hr" must be terminated by the matching end-tag "</hr>".
+```
+it doesn't seem affecting Hazelcast or this webapp functioning.
