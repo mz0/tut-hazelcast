@@ -31,15 +31,6 @@
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-maven-plugin</artifactId>
                 <version>${jetty.version}</version>
-                <configuration>
-                    <contextPath>/</contextPath>
-                    <!-- connectors>
-			www.eclipse.org/jetty/documentation/jetty-9/index.html#jetty-maven-plugin
-			    idleTimeout - configure the connectors in a standard jetty xml config file
-			    www.eclipse.org/jetty/documentation/jetty-9/index.html#jetty-xml-config -->
-                    <!-- requestLog implementation="org.mortbay.jetty.NCSARequestLog">
-                        <filename>./target/yyyy_mm_dd.request.log</filename> -->
-                </configuration>
             </plugin>
         </plugins>
     </build>
