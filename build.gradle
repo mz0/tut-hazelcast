@@ -1,0 +1,37 @@
+plugins {
+ id 'war'
+}
+
+ext {
+ shiroVersion = '1.4.1'
+ log4jVersion = '2.14.1'
+ jettyVersion = '9.4.44.v20210927'
+}
+
+repositories {
+ mavenCentral()
+}
+
+dependencies {
+ implementation "org.apache.shiro:shiro-core:${shiroVersion}"
+ implementation "org.apache.shiro:shiro-web:${shiroVersion}"
+ implementation "org.apache.shiro:shiro-hazelcast:${shiroVersion}"
+ implementation "javax.servlet:jstl:1.2"
+ implementation "org.slf4j:slf4j-api:1.7.32"
+ runtimeOnly "org.slf4j:jcl-over-slf4j:1.7.32"
+ implementation "org.apache.logging.log4j:log4j-api:${log4jVersion}"
+ implementation "org.apache.logging.log4j:log4j-core:${log4jVersion}"
+ implementation "org.apache.logging.log4j:log4j-slf4j-impl:${log4jVersion}"
+ testImplementation "junit:junit:4.13"
+ testImplementation "net.sourceforge.htmlunit:htmlunit:2.22"
+ providedCompile "javax.servlet:javax.servlet-api:3.1.0"
+}
+
+group = 'com.exactpro'
+//version = '0.1-SNAPSHOT'
+description = 'Apache Shiro :: Samples :: Hazelcast'
+java.sourceCompatibility = JavaVersion.VERSION_1_8
+
+//tasks.withType(JavaCompile) {
+//    options.encoding = 'UTF-8'
+//}
