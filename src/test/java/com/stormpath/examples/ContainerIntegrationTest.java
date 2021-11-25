@@ -1,4 +1,4 @@
-package com.stormpath.examples.shiro.test;
+package com.stormpath.examples;
 
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlForm;

@@ -8,7 +8,6 @@
 
 <h2>Please Log in</h2>
 
-<shiro:guest>
     <p>Here are a few sample accounts to play with in the default text-based Realm (used for this
         demo and test installs only). Do you remember the movie these names came from? ;)</p>
 
@@ -67,7 +66,6 @@
         </tbody>
     </table>
     <br/><br/>
-</shiro:guest>
 
 <form name="loginform" action="" method="post">
     <table align="left" border="0" cellspacing="0" cellpadding="3">

@@ -3,49 +3,23 @@
 <html>
 <head>
     <link type="text/css" rel="stylesheet" href="<c:url value="/style.css"/>"/>
-    <title>Apache Shiro Quickstart</title>
+    <title>Auth Filter Quickstart</title>
 </head>
 <body>
 
-<h1>Apache Shiro Quickstart</h1>
-
-<p>Hi <shiro:guest>Guest</shiro:guest><shiro:user><shiro:principal/></shiro:user>!
-    ( <shiro:user><a href="<c:url value="/logout"/>">Log out</a></shiro:user>
-    <shiro:guest><a href="<c:url value="/login.jsp"/>">Log in</a> (sample accounts provided)</shiro:guest> )
-</p>
-
-<p>Welcome to the Apache Shiro Quickstart sample application.
-    This page represents the home page of any web application.</p>
-
-<shiro:user><p>Visit your <a href="<c:url value="/account"/>">account page</a>.</p></shiro:user>
-<shiro:guest><p>If you want to access the user-only <a href="<c:url value="/account"/>">account page</a>,
-    you will need to log-in first.</p></shiro:guest>
-
-<h2>Roles</h2>
-
-<p>To show some taglibs, here are the roles you have and don't have. Log out and log back in under different user
-    accounts to see different roles.</p>
-
-<h3>Roles you have</h3>
+<h1>Auth Filter Quickstart</h1>
 
 <p>
-    <shiro:hasRole name="admin">admin<br/></shiro:hasRole>
-    <shiro:hasRole name="president">president<br/></shiro:hasRole>
-    <shiro:hasRole name="darklord">darklord<br/></shiro:hasRole>
-    <shiro:hasRole name="goodguy">goodguy<br/></shiro:hasRole>
-    <shiro:hasRole name="schwartz">schwartz<br/></shiro:hasRole>
+ <c:choose>
+ <c:when test="${empty user.login}">
+     Hi Unknown! <a href="<c:url value="/login.jsp"/>">Log in</a> first
+ </c:when>
+ <c:otherwise>
+     Hi ${user.login}!
+     <a href="<c:url value="/account"/>">Account page</a> | <a href="<c:url value="/logout"/>">Log out</a>
+ </c:otherwise>
+ </c:choose>
 </p>
-
-<h3>Roles you DON'T have</h3>
-
-<p>
-    <shiro:lacksRole name="admin">admin<br/></shiro:lacksRole>
-    <shiro:lacksRole name="president">president<br/></shiro:lacksRole>
-    <shiro:lacksRole name="darklord">darklord<br/></shiro:lacksRole>
-    <shiro:lacksRole name="goodguy">goodguy<br/></shiro:lacksRole>
-    <shiro:lacksRole name="schwartz">schwartz<br/></shiro:lacksRole>
-</p>
-
-
+<hr/>
 </body>
 </html>

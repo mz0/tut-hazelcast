@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
-         version="2.5">
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+  http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd" version="4.0">
 
-    <listener>
-        <listener-class>org.apache.shiro.web.env.EnvironmentLoaderListener</listener-class>
-    </listener>
+    <context-param>
+    <param-name>login-url</param-name><param-value>/login.jsp</param-value>
+    </context-param>
 
     <filter>
-        <filter-name>ShiroFilter</filter-name>
-        <filter-class>org.apache.shiro.web.servlet.ShiroFilter</filter-class>
+        <filter-name>MyFilter</filter-name>
+        <filter-class>com.exactpro.web.servlet.MyFilter</filter-class>
+        <init-param><param-name>ignore-url</param-name><param-value>/api/*</param-value></init-param>
     </filter>
 
     <filter-mapping>
-        <filter-name>ShiroFilter</filter-name>
+        <filter-name>MyFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 

@@ -3,7 +3,7 @@
  xmlns="http://www.hazelcast.com/schema/config"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <group>
-        <name>tut-shiro</name>
+        <name>tut-filter</name>
         <password>dev-pass</password>
     </group>
     <management-center enabled="false">http://localhost:8080/mancenter</management-center>
