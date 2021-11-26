@@ -20,6 +20,5 @@
  </c:otherwise>
  </c:choose>
 </p>
-<hr/>
 </body>
 </html>

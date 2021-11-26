@@ -3,15 +3,6 @@
 <html>
 <head>
     <link type="text/css" rel="stylesheet" href="<c:url value="/style.css"/>"/>
-</head>
-<body>
-
-<h2>Please Log in</h2>
-
-    <p>Here are a few sample accounts to play with in the default text-based Realm (used for this
-        demo and test installs only). Do you remember the movie these names came from? ;)</p>
-
-
     <style type="text/css">
         table.sample {
             border-width: 1px;
@@ -37,32 +28,23 @@
             background-color: rgb(255, 255, 240);
         }
     </style>
+</head>
+<body>
+
+<h2>Please Log in</h2>
+
+    <p>Here are a few sample accounts to play with</p>
 
 
     <table class="sample">
         <thead>
-        <tr>
-            <th>Username</th>
-            <th>Password</th>
-        </tr>
+        <tr><th>Username</th>	<th>Password</th></tr>
         </thead>
         <tbody>
-        <tr>
-            <td>root</td>
-            <td>secret</td>
-        </tr>
-        <tr>
-            <td>presidentskroob</td>
-            <td>12345</td>
-        </tr>
-        <tr>
-            <td>darkhelmet</td>
-            <td>ludicrousspeed</td>
-        </tr>
-        <tr>
-            <td>lonestarr</td>
-            <td>vespa</td>
-        </tr>
+        <tr><td>root</td>	<td>secret</td></tr>
+        <tr><td>presidentskroob</td> <td>12345</td></tr>
+        <tr><td>darkhelmet</td>	<td>ludicrousspeed</td></tr>
+        <tr><td>lonestarr</td>	<td>vespa</td> </tr>
         </tbody>
     </table>
     <br/><br/>
@@ -76,9 +58,6 @@
         <tr>
             <td>Password:</td>
             <td><input type="password" name="password" maxlength="30"></td>
-        </tr>
-        <tr>
-            <td colspan="2" align="left"><input type="checkbox" name="rememberMe"><font size="2">Remember Me</font></td>
         </tr>
         <tr>
             <td colspan="2" align="right"><input type="submit" name="submit" value="Login"></td>
