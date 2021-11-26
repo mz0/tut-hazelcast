@@ -10,8 +10,8 @@
 
     <filter>
         <filter-name>MyFilter</filter-name>
-        <filter-class>com.exactpro.web.servlet.MyFilter</filter-class>
-        <init-param><param-name>ignore-url</param-name><param-value>/api/*</param-value></init-param>
+        <filter-class>com.exactpro.web.servlet.AuthFilter</filter-class>
+        <init-param><param-name>ignore-url</param-name><param-value>/api/</param-value></init-param>
     </filter>
 
     <filter-mapping>

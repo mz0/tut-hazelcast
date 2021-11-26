@@ -11,11 +11,11 @@
 
 <p>
  <c:choose>
- <c:when test="${empty user.login}">
+ <c:when test="${empty sessionScope.name}">
      Hi Unknown! <a href="<c:url value="/login.jsp"/>">Log in</a> first
  </c:when>
  <c:otherwise>
-     Hi ${user.login}!
+     Hi ${sessionScope.name}!
      <a href="<c:url value="/account"/>">Account page</a> | <a href="<c:url value="/logout"/>">Log out</a>
  </c:otherwise>
  </c:choose>

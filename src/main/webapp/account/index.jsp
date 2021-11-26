@@ -3,12 +3,13 @@
 <html>
 <head>
     <link type="text/css" rel="stylesheet" href="<c:url value="/style.css"/>"/>
+    <title>Protected Account Profile Page</title>
 </head>
 <body>
 
 <h2>Users only</h2>
 
-<p>You are currently logged in.</p>
+<p>You are currently logged in as ${sessionScope.name}</p>
 
 <p><a href="<c:url value="/home.jsp"/>">Return to the home page.</a></p>
 
