@@ -1,15 +1,18 @@
 package com.exactpro.bean;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import java.io.Serializable;
-import java.util.Set;
 
+@ManagedBean(name = "userInfo")
+@SessionScoped
 public class User implements Serializable {
     private String loginName;
-    private Set<String> roles;
+    private String roles;
 
     public String getName() { return loginName; }
     public void setName(String name) { this.loginName = name; }
 
-    public Set<String> getRoles() { return roles; }
-    public void setRoles(Set<String> roles) { this.roles = roles; }
+    public String getRoles() { return roles; }
+    public void setRoles(String roles) { this.roles = roles; }
 }

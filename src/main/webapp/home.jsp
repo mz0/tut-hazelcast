@@ -3,6 +3,7 @@
 <html>
 <head>
     <link type="text/css" rel="stylesheet" href="<c:url value="/style.css"/>"/>
+    <link rel="icon" type="image/png" href="/steps.png">
     <title>Auth Filter Quickstart</title>
 </head>
 <body>
@@ -12,7 +13,7 @@
 <p>
  <c:choose>
  <c:when test="${empty sessionScope.name}">
-     Hi Unknown! <a href="<c:url value="/login.jsp"/>">Log in</a> first
+     Hi Unknown! <a href="<c:url value="/login.xhtml"/>">Log in</a> first
  </c:when>
  <c:otherwise>
      Hi ${sessionScope.name}!

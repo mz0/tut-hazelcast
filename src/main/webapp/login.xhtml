@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns:h="http://java.sun.com/jsf/html">
+<h:head>
+ <title>Title</title>
+</h:head>
+
+<h:body>
+ <p>Session ID: <h:outputText value="#{session.id}"/></p>
+ <h:form id="login-form">
+    <h:inputText value="#{userInfo.name}"/><br/>
+    <h:inputSecret value="#{userInfo.roles}"/><br/>
+    <h:commandButton action="#{auth.tryLogin}" value="Send">
+    </h:commandButton>
+ </h:form>
+</h:body>
+
+</html>

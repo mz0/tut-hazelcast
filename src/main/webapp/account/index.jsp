@@ -3,6 +3,7 @@
 <html>
 <head>
     <link type="text/css" rel="stylesheet" href="<c:url value="/style.css"/>"/>
+    <link rel="icon" type="image/png" href="/steps.png">
     <title>Protected Account Profile Page</title>
 </head>
 <body>
