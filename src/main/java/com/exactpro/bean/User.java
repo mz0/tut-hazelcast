@@ -8,11 +8,11 @@ import java.io.Serializable;
 @SessionScoped
 public class User implements Serializable {
     private String loginName;
-    private String roles;
+    private String password;
 
     public String getName() { return loginName; }
     public void setName(String name) { this.loginName = name; }
 
-    public String getRoles() { return roles; }
-    public void setRoles(String roles) { this.roles = roles; }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
 }

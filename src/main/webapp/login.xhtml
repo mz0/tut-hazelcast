@@ -9,7 +9,7 @@
  <p>Session ID: <h:outputText value="#{session.id}"/></p>
  <h:form id="login-form">
     <h:inputText value="#{userInfo.name}"/><br/>
-    <h:inputSecret value="#{userInfo.roles}"/><br/>
+    <h:inputSecret value="#{userInfo.password}"/><br/>
     <h:commandButton action="#{auth.tryLogin}" value="Send">
     </h:commandButton>
  </h:form>

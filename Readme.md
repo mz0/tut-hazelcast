@@ -28,4 +28,7 @@ When the second Member goes down (on ^C), the 1st log shows
 return to the initial status `Members [1] {..}`
 
 ## Errata
-TBD
+pom.xml is only good for `jetty:run`. To produce a working WAR
+with `war:war` target, please run `jetty:run` first.
+
+Otherwise there will be neither Classes nor dependencies in the produced WAR.

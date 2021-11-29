@@ -14,6 +14,7 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 public class AuthFilter implements Filter {
+    public static final String LOGIN_NAME_KEY = "name";
 	private static final Logger log = LoggerFactory.getLogger(AuthFilter.class);
 	protected FilterConfig filterConfig;
 	protected String loginUrl;
