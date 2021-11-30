@@ -32,3 +32,9 @@ pom.xml is only good for `jetty:run`. To produce a working WAR
 with `war:war` target, please run `jetty:run` first.
 
 Otherwise there will be neither Classes nor dependencies in the produced WAR.
+
+### On Maven plugin configuration
+This command was helpful for figuring out jetty-plugin options:
+```
+mvn help:describe -Dplugin=org.eclipse.jetty:jetty-maven-plugin -Ddetail
+```

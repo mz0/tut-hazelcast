@@ -5,7 +5,7 @@
   http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" version="3.1">
 
     <context-param>
-    <param-name>login-url</param-name><param-value>/login.jsp</param-value>
+    <param-name>login-url</param-name><param-value>/login.xhtml</param-value>
     </context-param>
 
     <filter>
@@ -22,5 +22,6 @@
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
+
 
 </web-app>

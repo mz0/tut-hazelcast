@@ -65,7 +65,7 @@ public class ContainerIntegrationTest {
         }
 
         try (WebClient webClient = new WebClient()) {
-            HtmlPage page = webClient.getPage(BaseURI + "/login.jsp");
+            HtmlPage page = webClient.getPage(BaseURI + "/login.xhtml");
             HtmlForm form = page.getFormByName("loginform");
             form.getInputByName("username").setValueAttribute("root");
             form.getInputByName("password").setValueAttribute("secret");

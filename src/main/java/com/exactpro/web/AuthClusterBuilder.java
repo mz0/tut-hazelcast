@@ -1,6 +1,5 @@
 package com.exactpro.web;
 
-import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import org.slf4j.Logger;
@@ -15,14 +14,13 @@ public class AuthClusterBuilder implements ServletContextListener {
     private static final Logger log = LoggerFactory.getLogger(AuthClusterBuilder.class);
     public final static String CLUSTER_MAPPER_KEY = "shared.cluster.map";
     private HazelcastInstance hazelcastInstance;
-    private Config cnf = null; // TODO ?
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         if (this.hazelcastInstance != null) {
             log.error("non-null HazelcastInstance found on ServletContext Initialized Event.");
         } else {
-            hazelcastInstance = Hazelcast.newHazelcastInstance(cnf);
+            hazelcastInstance = Hazelcast.newHazelcastInstance(); // use hazelcast.ini from Classpath
             sce.getServletContext().setAttribute(CLUSTER_MAPPER_KEY, hazelcastInstance);
         }
         log.trace("This web-app has initialized/joined auth-cluster");

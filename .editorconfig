@@ -25,5 +25,5 @@ trim_trailing_whitespace = false
 # Source code files
 [*.{gradle,java,kt,sql,sh,py,kts}]
 charset = utf-8
-indent_style = space
+indent_style = tab
 indent_size = 4

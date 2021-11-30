@@ -36,6 +36,9 @@
 				<groupId>org.eclipse.jetty</groupId>
 				<artifactId>jetty-maven-plugin</artifactId>
 				<version>${jetty.version}</version>
+				<configuration>
+					<!-- scan>0</scan --><!-- 0 - hit Enter to redeploy, no-go with Hazelcast -->
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
