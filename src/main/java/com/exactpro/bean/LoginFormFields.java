@@ -6,7 +6,7 @@ import java.io.Serializable;
 
 @ManagedBean(name = "userInfo")
 @SessionScoped
-public class User implements Serializable {
+public class LoginFormFields implements Serializable {
     private String loginName;
     private String password;
 

@@ -8,18 +8,18 @@ mvn jetty:run -Djetty.port=9092
 TODO: Running the two servers above
 should show in the first terminal window
 ```
-com.hazelcast.cluster.ClusterManager
-INFO: [127.0.0.1]:5701 [dev]
+com.hazelcast.internal.cluster.ClusterService
+INFO: [127.0.0.1]:5701 [tut-filter] [3.7.8]
 
 Members [1] {
-	Member [127.0.0.1]:5701 this
+	Member [127.0.0.1]:5701 - abc12345-def6-7777-a89b-ccccc123abc4 this
 }
 ```
 and in the second terminal window, after a pause:
 ```
 Members [2] {
-	Member [127.0.0.1]:5701
-	Member [127.0.0.1]:5702 this
+	Member [127.0.0.1]:5701 - abc12345-def6-7777-a89b-ccccc123abc4
+	Member [127.0.0.1]:5702 - de876543-21ab-cdef-9876-543210abcdef this
 }
 ```
 the first window is also updated, listing the new `:5702` Member
