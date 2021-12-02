@@ -16,6 +16,10 @@
 			<param-name>ignore-url</param-name>
 			<param-value>/api/</param-value>
 		</init-param>
+		<init-param>
+			<param-name>resources</param-name>
+			<param-value>/javax.faces.resource/|/resources/</param-value>
+		</init-param>
 	</filter>
 
 	<filter-mapping>

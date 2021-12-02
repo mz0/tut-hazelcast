@@ -1,5 +1,7 @@
 package com.exactpro.bean;
 
+import com.exactpro.compat.PasswordHash;
+import com.exactpro.web.User;
 import com.hazelcast.core.HazelcastInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +22,7 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 
@@ -58,31 +61,64 @@ public class Auth {
             ((HazelcastInstance) ctx.getAttribute(CLUSTER_MAPPER_KEY)).getMap(sessionId);
         String alreadyLoggedInAs = (String) alreadyLoggedIn.get(LOGIN_NAME_KEY);
         if (alreadyLoggedInAs != null) {
-
+			log.info("User already logged in as {}", loginFormFields.getName());
+			return true;
         } else {
+			// "cluster user with session id {} not found"
 			try {
 				DataSource authDS = (DataSource) (new InitialContext()).lookup(JNDI_DS_RESOURCE_NAME);
-				if (checkUser(authDS, loginFormFields.getName(), loginFormFields.getPassword())) {
-					// todo cluster login
-					return true;
+				String checkResult = checkPasswordError(authDS, loginFormFields.getName(), loginFormFields.getPassword());
+				switch (checkResult) {
+					case "": clusterLogin(loginFormFields.getName());
+						return true;
+					default: log.error("{} login error: {}", loginFormFields.getName(), checkResult);
+						return false;
 				}
 			} catch (NamingException n) {
-				log.error("Naming exception shoul never happen in {}", Auth.class.getName());
+				throw new RuntimeException("'" + JNDI_DS_RESOURCE_NAME + "' DataSource lookup failed", n);
 			}
         }
-        log.info((alreadyLoggedInAs == null ? "cluster user with session id {} not found" : "User already logged in as {}"), loginFormFields.getName());
-        return !loginFormFields.getName().isEmpty(); /* TODO real check */
     }
 
-	private boolean checkUser(DataSource authDS, String name, String password) {
+	private void clusterLogin(String name) { // TODO
+		log.info("{} login Ok", name);
+	}
+
+	/** Returns empty error string on OK check, or a simple error message.
+	 *
+	 * @param authDS the DataSource for the DB with {@code user} table
+	 * @param name login-id to check
+	 * @param password check this against the hash in DB
+	 * @return "" if OK, "Error" if user not found,<br>
+	 * or password hash is no match, "DB Error" when no check can't be performed.
+	 */
+	private String checkPasswordError(DataSource authDS, String name, String password) {
 		/* see user.sql */
-		String query = "SELECT salt, password FROM user WHERE login = ?";
-		try (Connection conn = authDS.getConnection(); PreparedStatement tmt = conn.prepareStatement(query)) {
-			return true;
+		String query = "SELECT login, salt, password FROM user WHERE login = ?";
+		try (Connection conn = authDS.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+			stmt.setString(1, name);
+			try (ResultSet resultSet = stmt.executeQuery()) {
+				if (resultSet.next()) {
+					User user = userFromRow(resultSet);
+					log.trace("Checking hash for name '{}' with salt '{}'", name, user.getSalt());
+					return PasswordHash.getShshaHash(password, user.getSalt()).equals(user.getPassword())
+						? "" : "Error";
+				} else {
+					return "Error";
+				}
+			}
 		} catch (SQLException e) {
 			log.error("Cannot authenticate user '{}'", name, e);
+			return "DB error";
 		}
-		return false;
+	}
+
+	private User userFromRow(ResultSet resultSet) throws SQLException {
+		User user = new User();
+        user.setLogin(resultSet.getString("login"));
+        user.setPassword(resultSet.getString("password"));
+        user.setSalt(resultSet.getString("salt"));
+        return user;
 	}
 
 	/**
