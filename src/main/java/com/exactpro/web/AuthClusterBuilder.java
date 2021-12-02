@@ -5,15 +5,21 @@ import com.hazelcast.core.HazelcastInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import javax.servlet.ServletException;
 import javax.servlet.annotation.WebListener;
+import javax.sql.DataSource;
 
 @WebListener
 public class AuthClusterBuilder implements ServletContextListener {
     private static final Logger log = LoggerFactory.getLogger(AuthClusterBuilder.class);
     public final static String CLUSTER_MAPPER_KEY = "shared.cluster.map";
+	public final static String JNDI_DS_RESOURCE_NAME = "java:/comp/env/jdbc/AAData";
     private HazelcastInstance hazelcastInstance;
+	private DataSource authData;
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
@@ -26,7 +32,8 @@ public class AuthClusterBuilder implements ServletContextListener {
         log.trace("This web-app has initialized/joined auth-cluster");
     }
 
-    @Override
+
+	@Override
     public void contextDestroyed(ServletContextEvent sce) {
         sce.getServletContext().removeAttribute(CLUSTER_MAPPER_KEY);
         try {

@@ -4,6 +4,8 @@ import com.exactpro.web.util.SavedRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -13,7 +15,13 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.sql.DataSource;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+import static com.exactpro.web.AuthClusterBuilder.JNDI_DS_RESOURCE_NAME;
 
 public class AuthFilter implements Filter {
 	private static final Logger log = LoggerFactory.getLogger(AuthFilter.class);
@@ -77,6 +85,24 @@ public class AuthFilter implements Filter {
 		log.info("Login URL: {}", loginUrl);
 		log.info("Ignore URL(s): {}", listIgnored());
 		contextLoginUrl = String.format("%s/%s", contextPath, loginUrl).replace("//", "/");
+		checkDB();
+	}
+
+
+	private void checkDB() throws ServletException {
+		try {
+			checkDbConnection((DataSource) (new InitialContext()).lookup(JNDI_DS_RESOURCE_NAME));
+		} catch (NamingException n) {
+			throw new ServletException("cannot resolve JNDI Resource " + JNDI_DS_RESOURCE_NAME, n);
+		} catch (SQLException e) {
+			throw new ServletException("Database connection error", e);
+		}
+	}
+
+	private void checkDbConnection(DataSource ds) throws SQLException {
+		try (Connection conn = ds.getConnection(); Statement stmt = conn.createStatement()) {
+			stmt.execute("SELECT 1");
+		}
 	}
 
 	private String nonEmpty(String s) {
