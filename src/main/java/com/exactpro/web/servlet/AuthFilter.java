@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.regex.Pattern;
 
 import static com.exactpro.web.AuthClusterBuilder.JNDI_DS_RESOURCE_NAME;
 
@@ -33,6 +34,7 @@ public class AuthFilter implements Filter {
 	protected String loginUrl;
 	private String contextLoginUrl;
 	private String ignorePrefix;
+	private Pattern ignorePattern = Pattern.compile("^/javax.faces.resource/.*|^/resources/.*|^/api/.*|^/favicon.ico");
 
 	@Override
 	public void doFilter(ServletRequest rxs, ServletResponse txs, FilterChain fc) throws IOException, ServletException {
@@ -52,7 +54,7 @@ public class AuthFilter implements Filter {
 	}
 
 	private boolean isIgnored(String uri) {
-		return uri.startsWith(ignorePrefix);
+		return ignorePattern.matcher(uri).find();
 	}
 
 	private boolean isLogin(HttpServletRequest req) {
