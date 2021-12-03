@@ -33,68 +33,71 @@ import static com.exactpro.web.servlet.AuthFilter.LOGIN_NAME_KEY;
 @ManagedBean(name = "auth")
 @ViewScoped
 public class Auth {
-    private static final Logger log = LoggerFactory.getLogger(Auth.class);
+	private static final Logger log = LoggerFactory.getLogger(Auth.class);
 
-	private HttpSession session;
-	private ExternalContext fctx;
+	private final HttpSession session;
+	private final ExternalContext fctx;
 
 	public Auth() {
 		fctx = FacesContext.getCurrentInstance().getExternalContext();
 		session = (HttpSession) fctx.getSession(false);
 	}
 
-    @ManagedProperty(value = "#{userInfo}")
-    LoginFormFields loginFormFields;
+	@ManagedProperty(value = "#{userInfo}")
+	LoginFormFields loginFormFields;
 
-    public void tryLogin() {
-        log.info("user '{}' logs in", loginFormFields.getName());
-        try {
-            if (session == null) {
-                log.error("No (null) session found");
-                ((HttpServletResponse) fctx.getResponse()).sendError(403, "Authorisation failed");
-            } else if (isLoggedIn((ServletContext) fctx.getContext(), session.getId())) {
-                flagAuthOK(session, loginFormFields.getName());
-                HttpServletRequest req = (HttpServletRequest) fctx.getRequest();
-                req.changeSessionId();
-                fctx.redirect(fctx.getRequestContextPath() + "/home.jsp");
-            }
-        } catch (IOException e) {
-            log.error("Response or Redirect error", e);
-        }
-    }
+	public void tryLogin() {
+		log.info("user '{}' logs in", loginFormFields.getName());
+		try {
+			if (session == null) {
+				log.error("No (null) session found");
+				((HttpServletResponse) fctx.getResponse()).sendError(403, "Authorisation failed");
+			} else if (isLoggedIn((ServletContext) fctx.getContext(), session.getId())) {
+				flagAuthOK(session, loginFormFields.getName());
+				HttpServletRequest req = (HttpServletRequest) fctx.getRequest();
+				req.changeSessionId();
+				fctx.redirect(fctx.getRequestContextPath() + "/home.jsp");
+			}
+		} catch (IOException e) {
+			log.error("Response or Redirect error", e);
+		}
+	}
 
-    private boolean isLoggedIn(ServletContext ctx, String sessionId) {
-        Map<Object, Object> alreadyLoggedIn =
-            ((HazelcastInstance) ctx.getAttribute(CLUSTER_MAPPER_KEY)).getMap(sessionId);
-        String alreadyLoggedInAs = (String) alreadyLoggedIn.get(LOGIN_NAME_KEY);
-        if (alreadyLoggedInAs != null) {
+	private boolean isLoggedIn(ServletContext ctx, String sessionId) {
+		Map<Object, Object> alreadyLoggedIn =
+			((HazelcastInstance) ctx.getAttribute(CLUSTER_MAPPER_KEY)).getMap(sessionId);
+		String alreadyLoggedInAs = (String) alreadyLoggedIn.get(LOGIN_NAME_KEY);
+		if (alreadyLoggedInAs != null) {
 			log.info("User already logged in as {}", loginFormFields.getName());
 			return true;
-        } else {
+		} else {
 			// "cluster user with session id {} not found"
 			try {
 				DataSource authDS = (DataSource) (new InitialContext()).lookup(JNDI_DS_RESOURCE_NAME);
 				String checkResult = checkPasswordError(authDS, loginFormFields.getName(), loginFormFields.getPassword());
 				switch (checkResult) {
-					case "": clusterLogin(loginFormFields.getName());
+					case "":
+						clusterLogin(loginFormFields.getName());
 						return true;
-					default: log.error("{} login error: {}", loginFormFields.getName(), checkResult);
+					default:
+						log.error("{} login error: {}", loginFormFields.getName(), checkResult);
 						return false;
 				}
 			} catch (NamingException n) {
 				throw new RuntimeException("'" + JNDI_DS_RESOURCE_NAME + "' DataSource lookup failed", n);
 			}
-        }
-    }
+		}
+	}
 
 	private void clusterLogin(String name) { // TODO
 		log.info("{} login Ok", name);
 	}
 
-	/** Returns empty error string on OK check, or a simple error message.
+	/**
+	 * Returns empty error string on OK check, or a simple error message.
 	 *
-	 * @param authDS the DataSource for the DB with {@code user} table
-	 * @param name login-id to check
+	 * @param authDS   the DataSource for the DB with {@code user} table
+	 * @param name     login-id to check
 	 * @param password check this against the hash in DB
 	 * @return "" if OK, "Error" if user not found,<br>
 	 * or password hash is no match, "DB Error" when no check can't be performed.
@@ -122,27 +125,28 @@ public class Auth {
 
 	private User userFromRow(ResultSet resultSet) throws SQLException {
 		User user = new User();
-        user.setLogin(resultSet.getString("login"));
-        user.setPassword(resultSet.getString("password"));
-        user.setSalt(resultSet.getString("salt"));
-        return user;
+		user.setLogin(resultSet.getString("login"));
+		user.setPassword(resultSet.getString("password"));
+		user.setSalt(resultSet.getString("salt"));
+		return user;
 	}
 
 	/**
-     * Let filter know this login was authenticated<br>
-     * by putting the necessary details into this client's Session
-     * @param session this client's Session to mark as authenticated
-     * @param loginName authenticated as this user
-     */
-    private void flagAuthOK(HttpSession session, String loginName) {
-        session.setAttribute(LOGIN_NAME_KEY, loginName);
-    }
+	 * Let filter know this login was authenticated<br>
+	 * by putting the necessary details into this client's Session
+	 *
+	 * @param session   this client's Session to mark as authenticated
+	 * @param loginName authenticated as this user
+	 */
+	private void flagAuthOK(HttpSession session, String loginName) {
+		session.setAttribute(LOGIN_NAME_KEY, loginName);
+	}
 
-    public void setLoginFormFields(LoginFormFields uInfo) {
-        loginFormFields = uInfo;
-    }
+	public void setLoginFormFields(LoginFormFields uInfo) {
+		loginFormFields = uInfo;
+	}
 
-    public LoginFormFields getLoginFormFields() {
-        return loginFormFields;
-    }
+	public LoginFormFields getLoginFormFields() {
+		return loginFormFields;
+	}
 }
