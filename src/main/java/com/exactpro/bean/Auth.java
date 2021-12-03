@@ -34,22 +34,29 @@ import static com.exactpro.web.servlet.AuthFilter.LOGIN_NAME_KEY;
 @ViewScoped
 public class Auth {
     private static final Logger log = LoggerFactory.getLogger(Auth.class);
+
+	private HttpSession session;
+	private ExternalContext fctx;
+
+	public Auth() {
+		fctx = FacesContext.getCurrentInstance().getExternalContext();
+		session = (HttpSession) fctx.getSession(false);
+	}
+
     @ManagedProperty(value = "#{userInfo}")
     LoginFormFields loginFormFields;
 
     public void tryLogin() {
         log.info("user '{}' logs in", loginFormFields.getName());
-        ExternalContext ctx = FacesContext.getCurrentInstance().getExternalContext();
-        HttpSession session = (HttpSession) ctx.getSession(false);
         try {
             if (session == null) {
                 log.error("No (null) session found");
-                ((HttpServletResponse) ctx.getResponse()).sendError(403, "Authorisation failed");
-            } else if (isLoggedIn((ServletContext) ctx.getContext(), session.getId())) {
+                ((HttpServletResponse) fctx.getResponse()).sendError(403, "Authorisation failed");
+            } else if (isLoggedIn((ServletContext) fctx.getContext(), session.getId())) {
                 flagAuthOK(session, loginFormFields.getName());
-                HttpServletRequest req = (HttpServletRequest) ctx.getRequest();
+                HttpServletRequest req = (HttpServletRequest) fctx.getRequest();
                 req.changeSessionId();
-                ctx.redirect(ctx.getRequestContextPath() + "/home.jsp");
+                fctx.redirect(fctx.getRequestContextPath() + "/home.jsp");
             }
         } catch (IOException e) {
             log.error("Response or Redirect error", e);

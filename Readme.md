@@ -28,10 +28,15 @@ When the second Member goes down (on ^C), the 1st log shows
 return to the initial status `Members [1] {..}`
 
 ## Errata
-pom.xml is only good for `jetty:run`. To produce a working WAR
-with `war:war` target, please run `jetty:run` first.
+(to make a working WAR please do `mvn package`)
 
-Otherwise there will be neither Classes nor dependencies in the produced WAR.
+* this is not a well-behaving web-app, on Tomcat shutdown:
+```
+SEVERE [main]
+org.apache.catalina.loader.WebappClassLoaderBase.checkThreadLocalMapForLeaks
+The web application [sample-web-login-0.1] created a ThreadLocal ...
+but failed to remove it when the web application was stopped.
+```
 
 ### On Maven plugin configuration
 This command was helpful for figuring out jetty-plugin options:
