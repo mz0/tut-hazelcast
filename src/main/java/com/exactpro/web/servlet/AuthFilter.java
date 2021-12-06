@@ -1,17 +1,13 @@
 package com.exactpro.web.servlet;
 
 import com.exactpro.web.util.SavedRequest;
+import com.hazelcast.core.HazelcastInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -20,8 +16,10 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Map;
 import java.util.regex.Pattern;
 
+import static com.exactpro.web.AuthClusterBuilder.CLUSTER_MAPPER_KEY;
 import static com.exactpro.web.AuthClusterBuilder.JNDI_DS_RESOURCE_NAME;
 
 public class AuthFilter implements Filter {
@@ -30,27 +28,36 @@ public class AuthFilter implements Filter {
 	public static final String LOGIN_NAME_KEY = "name";
 	public static final String SAVED_REQUEST_KEY = "redirect.SavedRequest";
 
-	protected FilterConfig filterConfig;
+
 	protected String loginUrl;
 	private String contextLoginUrl;
 	private String ignorePrefix;
 	private Pattern ignorePattern = Pattern.compile("^/javax.faces.resource/.*|^/resources/.*|^/api/.*|^/favicon.ico");
 
+	private void traceSessionId(HttpServletRequest req) {
+		if (req.getSession(false) == null) {
+			log.trace("Session is null");
+		} else {
+			log.trace("SessionID: {}", req.getSession(false).getId());
+		}
+	}
+
 	@Override
 	public void doFilter(ServletRequest rxs, ServletResponse txs, FilterChain fc) throws IOException, ServletException {
 		HttpServletRequest req = (HttpServletRequest) rxs;
+		traceSessionId(req);
 		if (isIgnored(req.getRequestURI()) || isAuthenticated(req) || isLogin(req)) {
 			if (log.isTraceEnabled()) {
 				log.trace("Passing request: " + req.getRequestURI());
 			}
-			fc.doFilter(rxs, txs); // pass the request along the filter chain
 		} else {
 			HttpSession session = req.getSession(true); // make a new one if not found
 			if (log.isTraceEnabled()) {
 				log.trace("{} needs authentication", req.getRequestURI());
 			}
-			saveRequestAndRedirect(session, req, (HttpServletResponse) txs);
+			checkClusterLoginOrRedirect(session, req, (HttpServletResponse) txs);
 		}
+		fc.doFilter(rxs, txs); // pass the request along the filter chain
 	}
 
 	private boolean isIgnored(String uri) {
@@ -66,16 +73,28 @@ public class AuthFilter implements Filter {
 		return session != null && session.getAttribute(LOGIN_NAME_KEY) != null;
 	}
 
-	private void saveRequestAndRedirect(HttpSession session, HttpServletRequest request, HttpServletResponse tx) {
+	private void checkClusterLoginOrRedirect(HttpSession session, HttpServletRequest request, HttpServletResponse tx) {
+		if (clusterLoginOk(session.getId(), request.getServletContext())) {
+			return;
+		}
 		session.setAttribute(SAVED_REQUEST_KEY, new SavedRequest(request));
 		tx.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
 		tx.setHeader("Location", tx.encodeRedirectURL(contextLoginUrl));
 	}
 
+	private boolean clusterLoginOk(String sessionId, ServletContext ctx) {
+		Map<Object, Object> alreadyLoggedIn =
+			((HazelcastInstance) ctx.getAttribute(CLUSTER_MAPPER_KEY)).getMap(sessionId);
+		String alreadyLoggedInAs = (String) alreadyLoggedIn.get(LOGIN_NAME_KEY);
+		if (alreadyLoggedInAs == null) {
+			log.warn("No cluster session found for {}", sessionId);
+		}
+		return alreadyLoggedInAs != null; // TODO SAVE SESSION ATTRIBUTE!
+	}
+
 	@Override
 	public void init(FilterConfig fConfig) throws ServletException {
 		log.info("AuthFilter init start");
-		this.filterConfig = fConfig;
 		ignorePrefix = nonEmpty(fConfig.getInitParameter("ignore-url"));
 		String contextPath = fConfig.getServletContext().getContextPath();
 		log.info("AuthFilter context path: '{}'", contextPath);

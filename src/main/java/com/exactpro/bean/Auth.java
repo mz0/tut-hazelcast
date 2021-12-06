@@ -2,6 +2,7 @@ package com.exactpro.bean;
 
 import com.exactpro.compat.PasswordHash;
 import com.exactpro.web.User;
+import com.exactpro.web.util.SavedRequest;
 import com.hazelcast.core.HazelcastInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,23 +25,28 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Map;
+import java.util.Objects;
 
 import static com.exactpro.web.AuthClusterBuilder.CLUSTER_MAPPER_KEY;
 import static com.exactpro.web.AuthClusterBuilder.JNDI_DS_RESOURCE_NAME;
 import static com.exactpro.web.servlet.AuthFilter.LOGIN_NAME_KEY;
+import static com.exactpro.web.servlet.AuthFilter.SAVED_REQUEST_KEY;
 
 @ManagedBean(name = "auth")
 @ViewScoped
 public class Auth {
 	private static final Logger log = LoggerFactory.getLogger(Auth.class);
 
+	private final ExternalContext fCtx;
 	private final HttpSession session;
-	private final ExternalContext fctx;
+	private final ServletContext ctx;
+	private final HttpServletRequest req;
 
 	public Auth() {
-		fctx = FacesContext.getCurrentInstance().getExternalContext();
-		session = (HttpSession) fctx.getSession(false);
+		fCtx = FacesContext.getCurrentInstance().getExternalContext();
+		ctx = (ServletContext) fCtx.getContext();
+		session = (HttpSession) fCtx.getSession(false);
+		req = (HttpServletRequest) fCtx.getRequest();
 	}
 
 	@ManagedProperty(value = "#{userInfo}")
@@ -51,45 +57,45 @@ public class Auth {
 		try {
 			if (session == null) {
 				log.error("No (null) session found");
-				((HttpServletResponse) fctx.getResponse()).sendError(403, "Authorisation failed");
-			} else if (isLoggedIn((ServletContext) fctx.getContext(), session.getId())) {
+				((HttpServletResponse) fCtx.getResponse()).sendError(403, "Authorisation failed");
+			} else if (isAuthOk()) {
 				flagAuthOK(session, loginFormFields.getName());
-				HttpServletRequest req = (HttpServletRequest) fctx.getRequest();
-				req.changeSessionId();
-				fctx.redirect(fctx.getRequestContextPath() + "/home.jsp");
+				fCtx.redirect(fCtx.getRequestContextPath() + redirectUrl(session));
 			}
 		} catch (IOException e) {
 			log.error("Response or Redirect error", e);
 		}
 	}
 
-	private boolean isLoggedIn(ServletContext ctx, String sessionId) {
-		Map<Object, Object> alreadyLoggedIn =
-			((HazelcastInstance) ctx.getAttribute(CLUSTER_MAPPER_KEY)).getMap(sessionId);
-		String alreadyLoggedInAs = (String) alreadyLoggedIn.get(LOGIN_NAME_KEY);
-		if (alreadyLoggedInAs != null) {
-			log.info("User already logged in as {}", loginFormFields.getName());
-			return true;
-		} else {
-			// "cluster user with session id {} not found"
-			try {
-				DataSource authDS = (DataSource) (new InitialContext()).lookup(JNDI_DS_RESOURCE_NAME);
-				String checkResult = checkPasswordError(authDS, loginFormFields.getName(), loginFormFields.getPassword());
-				switch (checkResult) {
-					case "":
-						clusterLogin(loginFormFields.getName());
-						return true;
-					default:
-						log.error("{} login error: {}", loginFormFields.getName(), checkResult);
-						return false;
-				}
-			} catch (NamingException n) {
-				throw new RuntimeException("'" + JNDI_DS_RESOURCE_NAME + "' DataSource lookup failed", n);
+	private String redirectUrl(HttpSession session) {
+		SavedRequest sav = (SavedRequest) session.getAttribute(SAVED_REQUEST_KEY);
+		return (sav != null && !Objects.equals(sav.getMethod(), "POST"))
+			? sav.getRequestUrl()
+			: "/home.jsp";
+	}
+
+	private boolean isAuthOk() {
+		try {
+			DataSource authDS = (DataSource) (new InitialContext()).lookup(JNDI_DS_RESOURCE_NAME);
+			String checkResult = checkPasswordError(authDS, loginFormFields.getName(), loginFormFields.getPassword());
+			switch (checkResult) {
+				case "":
+					String newId = req.changeSessionId();
+					log.trace("Changing sessionID to {}", newId);
+					clusterLogin(loginFormFields.getName(), session.getId());
+					return true;
+				default:
+					// TODO push checkResult to Client's login form
+					log.error("{} login error: {}", loginFormFields.getName(), checkResult);
+					return false;
 			}
+		} catch (NamingException n) {
+			throw new RuntimeException("'" + JNDI_DS_RESOURCE_NAME + "' DataSource lookup failed", n);
 		}
 	}
 
-	private void clusterLogin(String name) { // TODO
+	private void clusterLogin(String name, String sessionId) {
+		((HazelcastInstance) ctx.getAttribute(CLUSTER_MAPPER_KEY)).getMap(sessionId).set(LOGIN_NAME_KEY, name);
 		log.info("{} login Ok", name);
 	}
 

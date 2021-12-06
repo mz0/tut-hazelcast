@@ -7,7 +7,7 @@
 
 	<groupId>com.exacto</groupId>
 	<artifactId>sample-web-login</artifactId>
-	<name>Servlet :: Sample :: Login</name>
+	<name>Servlet :: Sample :: Cluster Login</name>
 	<version>0.1</version>
 	<packaging>war</packaging>
 
@@ -18,7 +18,8 @@
 		<jetty.version>10.0.7</jetty.version>
 		<slf4j.version>1.7.32</slf4j.version>
 		<log4j.version>2.14.1</log4j.version>
-		<hazelcast.version>3.7.8</hazelcast.version>
+		<hazelcast.version>3.7.8</hazelcast.version><!-- TODO bump to 3.11+ for Java 11 compatibility,
+		see https://docs.hazelcast.org/docs/3.12/manual/html-single/#supported-jvms -->
 	</properties>
 
 	<build>
