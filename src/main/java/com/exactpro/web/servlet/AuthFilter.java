@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.servlet.*;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -17,6 +18,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import static com.exactpro.web.AuthClusterBuilder.CLUSTER_MAPPER_KEY;
@@ -25,6 +27,7 @@ import static com.exactpro.web.AuthClusterBuilder.JNDI_DS_RESOURCE_NAME;
 public class AuthFilter implements Filter {
 	private static final Logger log = LoggerFactory.getLogger(AuthFilter.class);
 
+	public static final String TOKEN_KEY = "SSO-ID";
 	public static final String LOGIN_NAME_KEY = "name";
 	public static final String SAVED_REQUEST_KEY = "redirect.SavedRequest";
 
@@ -45,7 +48,7 @@ public class AuthFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest rxs, ServletResponse txs, FilterChain fc) throws IOException, ServletException {
 		HttpServletRequest req = (HttpServletRequest) rxs;
-		traceSessionId(req);
+		//traceSessionId(req);
 		if (isIgnored(req.getRequestURI()) || isAuthenticated(req) || isLogin(req)) {
 			if (log.isTraceEnabled()) {
 				log.trace("Passing request: " + req.getRequestURI());
@@ -74,7 +77,7 @@ public class AuthFilter implements Filter {
 	}
 
 	private void checkClusterLoginOrRedirect(HttpSession session, HttpServletRequest request, HttpServletResponse tx) {
-		if (clusterLoginOk(session.getId(), request.getServletContext())) {
+		if (clusterLoginOk(maybeToken(request), request.getServletContext(), session)) {
 			return;
 		}
 		session.setAttribute(SAVED_REQUEST_KEY, new SavedRequest(request));
@@ -82,14 +85,21 @@ public class AuthFilter implements Filter {
 		tx.setHeader("Location", tx.encodeRedirectURL(contextLoginUrl));
 	}
 
-	private boolean clusterLoginOk(String sessionId, ServletContext ctx) {
+	private boolean clusterLoginOk(Optional<String> ssoId, ServletContext ctx, HttpSession session) {
+		if (!ssoId.isPresent()) {
+			log.debug("Cookie {} not found", TOKEN_KEY);
+			return false;
+		}
+		log.trace("Cookie {} = {}", TOKEN_KEY, ssoId.get());
 		Map<Object, Object> alreadyLoggedIn =
-			((HazelcastInstance) ctx.getAttribute(CLUSTER_MAPPER_KEY)).getMap(sessionId);
+			((HazelcastInstance) ctx.getAttribute(CLUSTER_MAPPER_KEY)).getMap(ssoId.get());
 		String alreadyLoggedInAs = (String) alreadyLoggedIn.get(LOGIN_NAME_KEY);
 		if (alreadyLoggedInAs == null) {
-			log.warn("No cluster session found for {}", sessionId);
+			log.warn("No '{}' attribute found for ssoID {}", LOGIN_NAME_KEY, ssoId);
+		} else {
+			flagAuthOK(session, alreadyLoggedInAs, ssoId.get());
 		}
-		return alreadyLoggedInAs != null; // TODO SAVE SESSION ATTRIBUTE!
+		return alreadyLoggedInAs != null;
 	}
 
 	@Override
@@ -130,6 +140,34 @@ public class AuthFilter implements Filter {
 		return (s == null || s.isEmpty() || s.equals("/"))
 			? java.util.UUID.randomUUID().toString()
 			: s;
+	}
+
+	private Optional<String> maybeToken(HttpServletRequest request) {
+		return readCookie(request, TOKEN_KEY);
+	}
+
+	private static Optional<String> readCookie(HttpServletRequest request, String cookieName) {
+		Cookie[] cookies = request.getCookies();
+		if (cookies != null) {
+			for (Cookie c : cookies) {
+				if (c.getName().equals(cookieName)) {
+					return Optional.of(c.getValue());
+				}
+			}
+		}
+		return Optional.empty();
+	}
+
+	/**
+	 * Let filter know this login was authenticated<br>
+	 * by putting the necessary details into this client's Session
+	 *  @param session this client's Session to mark as authenticated
+	 * @param loginName authenticated as this user
+	 * @param ssoId the key to shared Map Entry
+	 */
+	public static void flagAuthOK(HttpSession session, String loginName, String ssoId) {
+		session.setAttribute(LOGIN_NAME_KEY, loginName);
+		session.setAttribute(TOKEN_KEY, ssoId);
 	}
 
 	private String listIgnored() {

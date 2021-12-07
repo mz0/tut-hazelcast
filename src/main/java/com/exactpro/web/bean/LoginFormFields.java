@@ -1,4 +1,4 @@
-package com.exactpro.bean;
+package com.exactpro.web.bean;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;

@@ -36,4 +36,10 @@
 		<res-type>javax.sql.DataSource</res-type>
 		<res-auth>Container</res-auth>
 	</resource-ref>
+
+	<session-config>
+		<cookie-config>
+			<name>SID</name>
+		</cookie-config>
+	</session-config>
 </web-app>

@@ -2,7 +2,7 @@ package com.exactpro.web;
 
 public class User {
 	private String login;
-	private String password;
+	private String passwordHash;
 	private String salt;
 
 	public String getLogin() {
@@ -13,12 +13,12 @@ public class User {
 		this.login = login;
 	}
 
-	public String getPassword() {
-		return password;
+	public String getPasswordHash() {
+		return passwordHash;
 	}
 
-	public void setPassword(String password) {
-		this.password = password;
+	public void setPasswordHash(String passwordHash) {
+		this.passwordHash = passwordHash;
 	}
 
 	public String getSalt() {

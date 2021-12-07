@@ -18,17 +18,44 @@
 		<jetty.version>10.0.7</jetty.version>
 		<slf4j.version>1.7.32</slf4j.version>
 		<log4j.version>2.14.1</log4j.version>
-		<hazelcast.version>3.7.8</hazelcast.version><!-- TODO bump to 3.11+ for Java 11 compatibility,
-		see https://docs.hazelcast.org/docs/3.12/manual/html-single/#supported-jvms -->
+		<hazelcast.version>3.12.12</hazelcast.version>
+		<webXmlPath>${project.build.sourceDirectory}/no-package/web.xml</webXmlPath>
+		<port>8088</port>
 	</properties>
+
+	<profiles>
+		<profile>
+			<id>cfg1</id>
+			<properties>
+				<port>9091</port>
+				<webXmlPath>${project.build.sourceDirectory}/no-package/cfg1/web.xml</webXmlPath>
+			</properties>
+		</profile>
+		<profile>
+			<id>cfg2</id>
+			<properties>
+				<port>9092</port>
+				<webXmlPath>${project.build.sourceDirectory}/no-package/cfg2/web.xml</webXmlPath>
+			</properties>
+		</profile>
+	</profiles>
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>3.3.2</version>
+				<configuration>
+					<webXml>${webXmlPath}</webXml>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.eclipse.jetty</groupId>
 				<artifactId>jetty-maven-plugin</artifactId>
 				<version>${jetty.version}</version>
 				<configuration>
+					<httpConnector><port>${port}</port></httpConnector>
 					<useTestScope>true</useTestScope>
 					<!-- scan>0</scan --><!-- 0 - hit Enter to redeploy, no-go with Hazelcast -->
 					<jvmArgs>-Dhazelcast.logging.type=log4j2</jvmArgs>

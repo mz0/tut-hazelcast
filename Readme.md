@@ -1,8 +1,8 @@
-run
+run (`-Pcfg1` is roughly equivalent to `-Djetty.port=9091`)
 ```
-mvn jetty:run -Djetty.port=9091
+mvn jetty:run -Pcfg1
 # in another terminal, so the output is not intermixed
-mvn jetty:run -Djetty.port=9092
+mvn jetty:run -Pcfg2
 ```
 
 TODO: Running the two servers above

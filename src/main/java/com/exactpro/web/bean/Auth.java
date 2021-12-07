@@ -1,7 +1,8 @@
-package com.exactpro.bean;
+package com.exactpro.web.bean;
 
 import com.exactpro.compat.PasswordHash;
 import com.exactpro.web.User;
+import com.exactpro.web.servlet.AuthFilter;
 import com.exactpro.web.util.SavedRequest;
 import com.hazelcast.core.HazelcastInstance;
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ import javax.faces.view.ViewScoped;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.servlet.ServletContext;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -26,11 +28,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Objects;
+import java.util.UUID;
 
 import static com.exactpro.web.AuthClusterBuilder.CLUSTER_MAPPER_KEY;
 import static com.exactpro.web.AuthClusterBuilder.JNDI_DS_RESOURCE_NAME;
-import static com.exactpro.web.servlet.AuthFilter.LOGIN_NAME_KEY;
-import static com.exactpro.web.servlet.AuthFilter.SAVED_REQUEST_KEY;
+import static com.exactpro.web.servlet.AuthFilter.*;
 
 @ManagedBean(name = "auth")
 @ViewScoped
@@ -41,6 +43,7 @@ public class Auth {
 	private final HttpSession session;
 	private final ServletContext ctx;
 	private final HttpServletRequest req;
+	private Cookie ssoToken;
 
 	public Auth() {
 		fCtx = FacesContext.getCurrentInstance().getExternalContext();
@@ -59,8 +62,9 @@ public class Auth {
 				log.error("No (null) session found");
 				((HttpServletResponse) fCtx.getResponse()).sendError(403, "Authorisation failed");
 			} else if (isAuthOk()) {
-				flagAuthOK(session, loginFormFields.getName());
-				fCtx.redirect(fCtx.getRequestContextPath() + redirectUrl(session));
+				AuthFilter.flagAuthOK(session, loginFormFields.getName(), ssoToken.getValue());
+				((HttpServletResponse) fCtx.getResponse()).addCookie(ssoToken);
+				fCtx.redirect(redirectUrl(session)); // fCtx.getRequestContextPath() + ?? TODO?
 			}
 		} catch (IOException e) {
 			log.error("Response or Redirect error", e);
@@ -82,7 +86,9 @@ public class Auth {
 				case "":
 					String newId = req.changeSessionId();
 					log.trace("Changing sessionID to {}", newId);
-					clusterLogin(loginFormFields.getName(), session.getId());
+					ssoToken = new Cookie(TOKEN_KEY, UUID.randomUUID().toString());
+					ssoToken.setPath("/");
+					clusterLogin(loginFormFields.getName(), ssoToken.getValue());
 					return true;
 				default:
 					// TODO push checkResult to Client's login form
@@ -94,8 +100,8 @@ public class Auth {
 		}
 	}
 
-	private void clusterLogin(String name, String sessionId) {
-		((HazelcastInstance) ctx.getAttribute(CLUSTER_MAPPER_KEY)).getMap(sessionId).set(LOGIN_NAME_KEY, name);
+	private void clusterLogin(String name, String ssoId) {
+		((HazelcastInstance) ctx.getAttribute(CLUSTER_MAPPER_KEY)).getMap(ssoId).put(LOGIN_NAME_KEY, name);
 		log.info("{} login Ok", name);
 	}
 
@@ -117,7 +123,7 @@ public class Auth {
 				if (resultSet.next()) {
 					User user = userFromRow(resultSet);
 					log.trace("Checking hash for name '{}' with salt '{}'", name, user.getSalt());
-					return PasswordHash.getShshaHash(password, user.getSalt()).equals(user.getPassword())
+					return PasswordHash.getShshaHash(password, user.getSalt()).equals(user.getPasswordHash())
 						? "" : "Error";
 				} else {
 					return "Error";
@@ -132,20 +138,9 @@ public class Auth {
 	private User userFromRow(ResultSet resultSet) throws SQLException {
 		User user = new User();
 		user.setLogin(resultSet.getString("login"));
-		user.setPassword(resultSet.getString("password"));
+		user.setPasswordHash(resultSet.getString("password"));
 		user.setSalt(resultSet.getString("salt"));
 		return user;
-	}
-
-	/**
-	 * Let filter know this login was authenticated<br>
-	 * by putting the necessary details into this client's Session
-	 *
-	 * @param session   this client's Session to mark as authenticated
-	 * @param loginName authenticated as this user
-	 */
-	private void flagAuthOK(HttpSession session, String loginName) {
-		session.setAttribute(LOGIN_NAME_KEY, loginName);
 	}
 
 	public void setLoginFormFields(LoginFormFields uInfo) {

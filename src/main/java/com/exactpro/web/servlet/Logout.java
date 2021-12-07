@@ -1,8 +1,10 @@
 package com.exactpro.web.servlet;
 
+import com.hazelcast.core.HazelcastInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebServlet;
@@ -12,7 +14,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
+import static com.exactpro.web.AuthClusterBuilder.CLUSTER_MAPPER_KEY;
 import static com.exactpro.web.servlet.AuthFilter.LOGIN_NAME_KEY;
+import static com.exactpro.web.servlet.AuthFilter.TOKEN_KEY;
 
 @WebServlet(urlPatterns = {"/logout"})
 public class Logout extends HttpServlet {
@@ -29,7 +33,7 @@ public class Logout extends HttpServlet {
             if (loginNameAttr == null) {
                 log.warn("Logout attempt with null login-name attribute");
             } else {
-                session.removeAttribute(LOGIN_NAME_KEY);
+                logout(sRx.getServletContext(), session);
                 try {
                     ((HttpServletResponse) sTx).sendRedirect(((HttpServletRequest) sRx).getContextPath() + "/");
                 } catch (IOException e) {
@@ -38,4 +42,10 @@ public class Logout extends HttpServlet {
             }
         }
     }
+
+	private void logout(ServletContext ctx, HttpSession session) {
+		String ssoId = (String) session.getAttribute(TOKEN_KEY);
+		((HazelcastInstance) ctx.getAttribute(CLUSTER_MAPPER_KEY)).getMap(ssoId).destroy();
+		session.invalidate();
+	}
 }
