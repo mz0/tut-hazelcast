@@ -26,6 +26,7 @@
 	<profiles>
 		<profile>
 			<id>cfg1</id>
+			<activation><activeByDefault>true</activeByDefault></activation>
 			<properties>
 				<port>9091</port>
 				<webXmlPath>${project.build.sourceDirectory}/no-package/cfg1/web.xml</webXmlPath>
@@ -33,6 +34,7 @@
 		</profile>
 		<profile>
 			<id>cfg2</id>
+			<!-- build><directory>${project.basedir}/target/2</directory></build -->
 			<properties>
 				<port>9092</port>
 				<webXmlPath>${project.build.sourceDirectory}/no-package/cfg2/web.xml</webXmlPath>
@@ -47,6 +49,7 @@
 				<artifactId>maven-war-plugin</artifactId>
 				<version>3.3.2</version>
 				<configuration>
+					<failOnMissingWebXml>true</failOnMissingWebXml>
 					<webXml>${webXmlPath}</webXml>
 				</configuration>
 			</plugin>
@@ -58,7 +61,6 @@
 					<httpConnector><port>${port}</port></httpConnector>
 					<useTestScope>true</useTestScope>
 					<!-- scan>0</scan --><!-- 0 - hit Enter to redeploy, no-go with Hazelcast -->
-					<jvmArgs>-Dhazelcast.logging.type=log4j2</jvmArgs>
 				</configuration>
 			</plugin>
 		</plugins>
