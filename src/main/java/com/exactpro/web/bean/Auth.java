@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.RequestScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
@@ -35,7 +36,7 @@ import static com.exactpro.web.AuthClusterBuilder.JNDI_DS_RESOURCE_NAME;
 import static com.exactpro.web.servlet.AuthFilter.*;
 
 @ManagedBean(name = "auth")
-@ViewScoped
+@RequestScoped
 public class Auth {
 	private static final Logger log = LoggerFactory.getLogger(Auth.class);
 
@@ -62,6 +63,7 @@ public class Auth {
 				log.error("No (null) session found");
 				((HttpServletResponse) fCtx.getResponse()).sendError(403, "Authorisation failed");
 			} else if (isAuthOk()) {
+				loginFormFields.setPassword(null);
 				AuthFilter.flagAuthOK(session, loginFormFields.getName(), ssoToken.getValue());
 				((HttpServletResponse) fCtx.getResponse()).addCookie(ssoToken);
 				fCtx.redirect(redirectUrl(session)); // fCtx.getRequestContextPath() + ?? TODO?
@@ -75,7 +77,7 @@ public class Auth {
 		SavedRequest sav = (SavedRequest) session.getAttribute(SAVED_REQUEST_KEY);
 		return (sav != null && !Objects.equals(sav.getMethod(), "POST"))
 			? sav.getRequestUrl()
-			: "/home.jsp";
+			: fCtx.getRequestContextPath() + "/home.jsp";
 	}
 
 	private boolean isAuthOk() {
