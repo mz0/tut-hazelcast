@@ -77,7 +77,7 @@ public class Auth {
 		SavedRequest sav = (SavedRequest) session.getAttribute(SAVED_REQUEST_KEY);
 		return (sav != null && !Objects.equals(sav.getMethod(), "POST"))
 			? sav.getRequestUrl()
-			: fCtx.getRequestContextPath() + "/home.jsp";
+			: fCtx.getRequestContextPath() + "/";
 	}
 
 	private boolean isAuthOk() {

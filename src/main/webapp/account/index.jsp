@@ -1,4 +1,4 @@
-<%@ include file="../include.jsp" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <html>
 <head>
@@ -12,7 +12,7 @@
 
 <p>You are currently logged in as ${sessionScope.name}</p>
 
-<p><a href="<c:url value="/home.jsp"/>">Return to the home page.</a></p>
+<p><a href="<c:url value="/"/>">Return to the home page.</a></p>
 
 <p><a href="<c:url value="/logout"/>">Log out.</a></p>
 
