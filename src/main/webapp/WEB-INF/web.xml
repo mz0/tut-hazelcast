@@ -37,6 +37,16 @@
 		<res-auth>Container</res-auth>
 	</resource-ref>
 
+	<context-param>
+		<param-name>javax.faces.STATE_SAVING_METHOD</param-name>
+		<param-value>client</param-value>
+	</context-param>
+	<!-- env-entry>
+		<env-entry-name>jsf/ClientSideSecretKey</env-entry-name>
+		<env-entry-type>java.lang.String</env-entry-type>
+		<env-entry-value>cN+OUzpJIZ2oAizSYAuzX32WU3MVaT65t6XBxrZ0gKQ=</env-entry-value>
+	</env-entry -->
+
 	<session-config>
 		<cookie-config>
 			<name>SID</name>

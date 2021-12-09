@@ -32,7 +32,17 @@ When the second Member goes down (on ^C), the 1st log shows
 return to the initial status `Members  {size:1, ver:3} {..}`
 
 ## Errata
-already authenticated user may see strange errors when navigating to  `login.xhtml`
+* replicated Session invalidation is not implemented
+* this project requires non-trivial MySQL setup
+* already authenticated user may see strange errors when navigating to `login.xhtml`
+* on ^C Hazelcast 3.12.12 may throw:
+hz.ShutdownThread ERROR An exception occurred
+processing Appender CONOUT java.lang.NumberFormatException: For input string: "0m2021"
+ at java.base/java.lang.NumberFormatException.forInputString(NumberFormatException.java:65)
+ at java.base/java.lang.Integer.parseInt(Integer.java:652)
+	..
+ at com.hazelcast.instance.Node$NodeShutdownHookThread.run(Node.java:757)
+
 
 ### On Maven plugin configuration
 This command was helpful for figuring out jetty-plugin options:
