@@ -6,19 +6,17 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.exacto</groupId>
-	<artifactId>sample-web-login</artifactId>
-	<name>Servlet :: Sample :: Cluster Login</name>
+	<artifactId>sample-web</artifactId>
+	<name>JSF Sample</name>
 	<version>0.1</version>
 	<packaging>war</packaging>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.source>11</maven.compiler.source>
+		<maven.compiler.target>11</maven.compiler.target>
 		<jetty.version>10.0.7</jetty.version>
-		<slf4j.version>1.7.32</slf4j.version>
-		<log4j.version>2.14.1</log4j.version>
-		<hazelcast.version>3.12.12</hazelcast.version>
+		<log4j.version>2.19.0</log4j.version>
 		<port>8088</port>
 	</properties>
 
@@ -53,19 +51,7 @@
 		<dependency>
 			<groupId>org.glassfish</groupId>
 			<artifactId>javax.faces</artifactId>
-			<version>2.3.9</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>${slf4j.version}</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>jcl-over-slf4j</artifactId>
-			<version>${slf4j.version}</version>
-			<scope>runtime</scope>
+			<version>2.3.9</version><!-- 2019-04-02 -->
 		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
@@ -84,17 +70,6 @@
 			<artifactId>log4j-slf4j-impl</artifactId>
 			<version>${log4j.version}</version>
 			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.hazelcast</groupId>
-			<artifactId>hazelcast</artifactId>
-			<version>${hazelcast.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<version>8.0.27</version>
-			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>

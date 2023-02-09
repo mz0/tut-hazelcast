@@ -1,17 +1,2 @@
-This is a heavily modified clone of
-[shiro-hazelcast primer (2016-07-26)](https://github.com/stormpath/stormpath-shiro-hazelcast-tutorial)
-licensed to the Apache Software Foundation under one or more contributor
-license agreements, as was stated in pom.xml and the many other files.
-
-This code illustrated
-[2016-07-27 publication](https://stormpath.com/blog/hazelcast-support-apache-shiro)
-
-More than 5 years later I, Mark Zhitomirski (github.com/mz0) found
-this repo in the "archived" state, and refreshed this code, without
-claiming copyright for this work. After heavy modifications to the code,
-dropping the center-piece of it, and thorough consideration,
-I've removed those grant statements for good.
-
-2021-11-25 this code was stripped of `shiro-web` and `shiro-hazelcast`
-dependencies, and evolves as a pure Servlet Filter implementation
-of the original idea.
+2023-02-09 mz@exactpro.com compiled this JSF sample
+  and verified it runs using maven 3.8.4 and JDK 17

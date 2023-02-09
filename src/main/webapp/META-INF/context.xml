@@ -1,9 +1,2 @@
 <Context>
-	<Resource type="javax.sql.DataSource" name="jdbc/AAData" auth="Container"
-	 driverClassName="com.mysql.cj.jdbc.Driver"
-	 url="jdbc:mysql://localhost:3306/xyz"
-	 connectionProperties="characterEncoding=latin1;serverTimezone=UTC;createDatabaseIfNotExist=true"
-	 username="zyx"
-	 password="888"
-	 maxTotal="4" maxIdle="2"/>
 </Context>
